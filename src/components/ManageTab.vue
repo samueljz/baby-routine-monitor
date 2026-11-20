@@ -26,6 +26,7 @@ import {
   describeDiaper,
   formatTime,
   formatDateKey,
+  getBottleAmounts,
   type RoutineEntry,
   type RoutineEntryWithMeta,
   type FeedingMethod,
@@ -448,10 +449,10 @@ function executeDelete() {
             :bordered="false"
             size="small"
           >
-            <div class="flex justify-between items-center px-2 py-1">
+            <div class="flex justify-between items-center gap-3 px-2 py-1">
 
               <!-- Left: Icon + Time + Category -->
-              <div class="flex items-center gap-3">
+              <div class="flex items-center gap-3 min-w-0 flex-1">
                 <div
                   class="w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0"
                   :class="
@@ -468,35 +469,40 @@ function executeDelete() {
                   </span>
                 </div>
 
-                <div class="flex flex-col gap-0.5">
+                <div class="flex flex-col gap-0.5 min-w-0">
                   <div class="flex items-center gap-2 text-xs font-semibold text-stone-500 dark:text-stone-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 opacity-70" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 opacity-70 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                       <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                     </svg>
                     {{ formatTime(entry.timestamp) }}
                   </div>
-                  <span
-                    class="text-[11px] font-extrabold uppercase tracking-widest"
+                  <div
+                    class="flex flex-col text-[11px] font-extrabold uppercase tracking-widest leading-snug"
                     :class="
                       entry.type === 'feed'
                         ? describeFeed(entry).cls
                         : describeDiaper(entry).cls
                     "
                   >
-                    {{ entry.type === 'feed' ? describeFeed(entry).label : describeDiaper(entry).label }}
-                  </span>
+                    <span
+                      v-for="(line, lIdx) in (entry.type === 'feed' ? describeFeed(entry).lines : describeDiaper(entry).lines)"
+                      :key="lIdx"
+                    >
+                      {{ line }}
+                    </span>
+                  </div>
                 </div>
               </div>
 
               <!-- Right: Value + Delete Button -->
-              <div class="flex items-center gap-3">
-                <div class="flex items-end gap-1">
+              <div class="flex items-center gap-3 shrink-0 whitespace-nowrap">
+                <div class="flex items-baseline gap-1 shrink-0 whitespace-nowrap">
                   <template v-if="entry.type === 'feed'">
                     <template v-if="entry.feedingMethod === 'bottle'">
                       <span class="text-2xl font-black tabular-nums text-stone-800 dark:text-amber-100">
-                        {{ entry.amountMl ?? 0 }}
+                        {{ getBottleAmounts(entry).totalMl }}
                       </span>
-                      <span class="text-[9px] font-bold text-stone-400 uppercase ml-0.5 mb-1 self-end">ml</span>
+                      <span class="text-[9px] font-bold text-stone-400 uppercase ml-0.5">ml</span>
                     </template>
                     <template v-else>
                       <span class="text-xl font-black tabular-nums text-stone-800 dark:text-amber-100">
@@ -505,7 +511,7 @@ function executeDelete() {
                     </template>
                   </template>
                   <template v-else>
-                    <div class="flex items-center gap-1">
+                    <div class="flex items-center gap-1 shrink-0 whitespace-nowrap">
                       <span
                         v-if="entry.hasUrine"
                         class="px-2 py-0.5 rounded-lg bg-emerald-100/80 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 text-xs font-extrabold"
@@ -526,7 +532,7 @@ function executeDelete() {
                 <button
                   type="button"
                   @click="confirmDelete(entry)"
-                  class="w-9 h-9 rounded-xl flex items-center justify-center text-stone-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 active:scale-90 transition-all"
+                  class="w-9 h-9 rounded-xl flex items-center justify-center text-stone-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 active:scale-90 transition-all shrink-0"
                   title="Delete this entry"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -945,7 +951,7 @@ function executeDelete() {
               <template v-if="pendingDeleteEntry.type === 'feed'">
                 {{
                   pendingDeleteEntry.feedingMethod === 'bottle'
-                    ? `${pendingDeleteEntry.amountMl ?? 0} ml Bottle`
+                    ? `${getBottleAmounts(pendingDeleteEntry).totalMl} ml Bottle`
                     : 'Latching Feed'
                 }}
               </template>

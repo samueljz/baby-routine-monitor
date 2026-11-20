@@ -507,9 +507,9 @@ onUnmounted(() => {
         :bordered="false"
         size="small"
       >
-        <div class="flex justify-between items-center px-2 py-1">
+        <div class="flex justify-between items-center gap-3 px-2 py-1">
           <!-- Left: Icon + Date/Time + Category Badge -->
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-3 min-w-0 flex-1">
             <div
               class="w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0"
               :class="
@@ -526,33 +526,38 @@ onUnmounted(() => {
               </span>
             </div>
 
-            <div class="flex flex-col">
+            <div class="flex flex-col min-w-0">
               <div class="text-xs font-semibold text-stone-500 dark:text-stone-400 flex items-center gap-2">
                 <span>{{ entry.dateKey }}</span>
-                <span class="w-1 h-1 rounded-full bg-stone-300 dark:bg-stone-600"></span>
+                <span class="w-1 h-1 rounded-full bg-stone-300 dark:bg-stone-600 shrink-0"></span>
                 <span>{{ formatTime(entry.timestamp) }}</span>
               </div>
-              <span
-                class="text-[11px] font-extrabold uppercase tracking-widest mt-0.5"
+              <div
+                class="flex flex-col text-[11px] font-extrabold uppercase tracking-widest mt-0.5 leading-snug"
                 :class="
                   entry.type === 'feed'
                     ? describeFeed(entry).cls
                     : describeDiaper(entry).cls
                 "
               >
-                {{ entry.type === 'feed' ? describeFeed(entry).label : describeDiaper(entry).label }}
-              </span>
+                <span
+                  v-for="(line, lIdx) in (entry.type === 'feed' ? describeFeed(entry).lines : describeDiaper(entry).lines)"
+                  :key="lIdx"
+                >
+                  {{ line }}
+                </span>
+              </div>
             </div>
           </div>
 
           <!-- Right: Value -->
-          <div class="flex items-end gap-1">
+          <div class="flex items-baseline gap-1 shrink-0 whitespace-nowrap">
             <template v-if="entry.type === 'feed'">
               <template v-if="entry.feedingMethod === 'bottle'">
                 <span class="text-2xl font-black tabular-nums text-stone-800 dark:text-amber-100">
                   {{ getBottleAmounts(entry).totalMl }}
                 </span>
-                <span class="ml-0.5 mb-1 text-[10px] font-bold text-stone-400 uppercase self-end">ml</span>
+                <span class="ml-0.5 text-[10px] font-bold text-stone-400 uppercase">ml</span>
               </template>
               <template v-else>
                 <span class="text-xl font-black tabular-nums text-stone-800 dark:text-amber-100">
@@ -561,7 +566,7 @@ onUnmounted(() => {
               </template>
             </template>
             <template v-else>
-              <div class="flex items-center gap-1">
+              <div class="flex items-center gap-1 shrink-0 whitespace-nowrap">
                 <span
                   v-if="entry.hasUrine"
                   class="px-2 py-0.5 rounded-lg bg-emerald-100/80 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 text-xs font-extrabold"

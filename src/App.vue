@@ -460,9 +460,9 @@ onUnmounted(() => {
                   :bordered="false"
                   size="small"
                 >
-                  <div class="flex justify-between items-center px-2 py-0.5">
+                  <div class="flex justify-between items-center gap-3 px-2 py-0.5">
                     <!-- Left: Icon + Time + Badge -->
-                    <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-3 min-w-0 flex-1">
                       <div
                         class="w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0"
                         :class="
@@ -473,37 +473,42 @@ onUnmounted(() => {
                       >
                         {{ entry.type === 'feed' ? (entry.feedingMethod === 'latch' ? '🤱' : '🍼') : '🧸' }}
                       </div>
-                      <div class="flex flex-col">
+                      <div class="flex flex-col min-w-0">
                         <div class="flex items-center gap-1.5 text-xs font-bold" :class="isDarkMode ? 'text-stone-200' : 'text-stone-700'">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 opacity-70" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 opacity-70 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                           {{ formatTime(entry.timestamp) }}
                         </div>
-                        <span
-                          class="text-[10px] font-extrabold uppercase tracking-widest mt-0.5"
+                        <div
+                          class="flex flex-col text-[10px] font-extrabold uppercase tracking-widest mt-0.5 leading-snug"
                           :class="entry.type === 'feed' ? describeFeed(entry).cls : describeDiaper(entry).cls"
                         >
-                          {{ entry.type === 'feed' ? describeFeed(entry).label : describeDiaper(entry).label }}
-                        </span>
+                          <span
+                            v-for="(line, lIdx) in (entry.type === 'feed' ? describeFeed(entry).lines : describeDiaper(entry).lines)"
+                            :key="lIdx"
+                          >
+                            {{ line }}
+                          </span>
+                        </div>
                       </div>
                     </div>
 
                     <!-- Right: Value / Status -->
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 shrink-0 whitespace-nowrap">
                       <template v-if="entry.type === 'feed'">
-                        <div v-if="entry.feedingMethod === 'bottle'" class="flex items-baseline gap-1">
+                        <div v-if="entry.feedingMethod === 'bottle'" class="flex items-baseline gap-1 shrink-0 whitespace-nowrap">
                           <span class="text-xl font-black tabular-nums" :class="isDarkMode ? 'text-amber-100' : 'text-stone-800'">
                             {{ getBottleAmounts(entry).totalMl }}
                           </span>
                           <span class="text-[10px] font-bold text-stone-400 uppercase">ml</span>
                         </div>
-                        <div v-else class="flex items-baseline gap-1">
+                        <div v-else class="flex items-baseline gap-1 shrink-0 whitespace-nowrap">
                           <span class="text-lg font-black tabular-nums" :class="isDarkMode ? 'text-amber-100' : 'text-stone-800'">
                             {{ entry.durationMinutes ? `${entry.durationMinutes}m` : 'Latch' }}
                           </span>
                         </div>
                       </template>
                       <template v-else>
-                        <div class="flex items-center gap-1">
+                        <div class="flex items-center gap-1 shrink-0 whitespace-nowrap">
                           <span
                             v-if="entry.hasUrine"
                             class="px-2 py-0.5 rounded-lg text-[10px] font-extrabold uppercase tracking-wider bg-emerald-100/80 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300"

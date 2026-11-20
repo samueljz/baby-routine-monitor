@@ -43,6 +43,10 @@ export type RoutineEntryWithMeta = RoutineEntry & {
 
 export interface EntryBadge {
   label: string
+  /** Optional secondary line (e.g., milk breakdown for combined bottle feeds) */
+  subLabel?: string
+  /** Individual lines for multi-line rendering */
+  lines: string[]
   /** Lighter colour for use on a coloured gradient card */
   color: string
   /** Standard colour for use on a neutral card background */
@@ -131,8 +135,10 @@ export function describeFeed(entry: FeedEntry): EntryBadge {
     const sideLabel = entry.breastSide
       ? ` • ${entry.breastSide.toUpperCase()}`
       : ''
+    const label = `Latching${sideLabel}`
     return {
-      label: `Latching${sideLabel}`,
+      label,
+      lines: [label],
       color: 'text-orange-100',
       cls: 'text-orange-700 dark:text-orange-400',
     }
@@ -142,22 +148,28 @@ export function describeFeed(entry: FeedEntry): EntryBadge {
 
   if (breastMl > 0 && formulaMl > 0) {
     return {
-      label: `Bottle • ${breastMl}ml Breast + ${formulaMl}ml Formula`,
+      label: 'Bottle • Combined',
+      subLabel: `${breastMl}ml Breast Milk • ${formulaMl}ml Formula`,
+      lines: ['Bottle', `${breastMl}ml Breast Milk`, `${formulaMl}ml Formula`],
       color: 'text-amber-100',
       cls: 'text-amber-700 dark:text-amber-400',
     }
   }
 
   if (formulaMl > 0 || entry.milkType === 'formula') {
+    const label = 'Bottle • Formula Milk'
     return {
-      label: 'Bottle • Formula Milk',
+      label,
+      lines: [label],
       color: 'text-yellow-100',
       cls: 'text-yellow-700 dark:text-yellow-400',
     }
   }
 
+  const label = 'Bottle • Breast Milk'
   return {
-    label: 'Bottle • Breast Milk',
+    label,
+    lines: [label],
     color: 'text-orange-100',
     cls: 'text-amber-800 dark:text-amber-300',
   }
@@ -168,6 +180,7 @@ export function describeDiaper(entry: DiaperEntry): EntryBadge {
   if (entry.hasUrine && entry.hasPoop) {
     return {
       label: 'Urine + Poop',
+      lines: ['Urine + Poop'],
       color: 'text-amber-100',
       cls: 'text-amber-700 dark:text-amber-400',
     }
@@ -175,12 +188,14 @@ export function describeDiaper(entry: DiaperEntry): EntryBadge {
   if (entry.hasPoop) {
     return {
       label: 'Poop Only',
+      lines: ['Poop Only'],
       color: 'text-orange-100',
       cls: 'text-orange-700 dark:text-orange-400',
     }
   }
   return {
     label: 'Urine Only',
+    lines: ['Urine Only'],
     color: 'text-emerald-100',
     cls: 'text-emerald-700 dark:text-emerald-400',
   }
